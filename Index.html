@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yashalava Tycoon</title>
+    <style>
+        body { margin: 0; background: #0b0e14; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; display: flex; flex-direction: column; align-items: center; }
+        
+        /* Шапка с балансом */
+        #header { width: 100%; padding: 20px; background: #161b22; text-align: center; border-bottom: 2px solid #7928ca; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        #money { font-size: 32px; font-weight: bold; color: #a277ff; }
+
+        /* Главная кнопка */
+        #click-zone { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; }
+        #main-btn { width: 200px; height: 200px; background: linear-gradient(135deg, #7928ca, #ff0080); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 80px; cursor: pointer; border: 8px solid #161b22; transition: 0.1s; user-select: none; box-shadow: 0 0 30px rgba(121, 40, 202, 0.4); }
+        #main-btn:active { transform: scale(0.9); box-shadow: 0 0 10px rgba(121, 40, 202, 0.8); }
+
+        /* Магазин */
+        #shop { width: 100%; background: #161b22; padding: 20px; display: flex; flex-direction: column; gap: 10px; border-radius: 20px 20px 0 0; }
+        .item { background: #0b0e14; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+        .item.bought { border-color: #00ff88; }
+        .buy-btn { background: #7928ca; color: white; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; }
+        .buy-btn:disabled { background: #333; color: #777; }
+
+        /* Всплывающие цифры */
+        .plus-one { position: absolute; color: #00ff88; font-weight: bold; animation: fly 0.5s forwards; pointer-events: none; }
+        @keyframes fly { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+    </style>
+</head>
+<body>
+
+<div id="header">
+    <div style="font-size: 14px; color: #888;">БАЛАНС YASHALAVA</div>
+    <div id="money">0 💎</div>
+</div>
+
+<div id="click-zone">
+    <div id="main-btn" onclick="doClick()">Y</div>
+    <p style="color: #555; margin-top: 20px;">КЛИКАЙ НА ЛОГО</p>
+</div>
+
+<div id="shop">
+    <div class="item">
+        <div>
+            <strong>Клик +1</strong><br>
+            <span id="cost1" style="color: #00ff88;">10</span> 💎
+        </div>
+        <button class="buy-btn" id="btn1" onclick="buyUpgrade(1)">КУПИТЬ</button>
+    </div>
+    <div class="item">
+        <div>
+            <strong>Авто-майнинг</strong><br>
+            <span id="cost2" style="color: #00ff88;">50</span> 💎
+        </div>
+        <button class="buy-btn" id="btn2" onclick="buyUpgrade(2)">КУПИТЬ</button>
+    </div>
+</div>
+
+<script>
+    let coins = 0;
+    let clickPower = 1;
+    let autoPower = 0;
+    let cost1 = 10;
+    let cost2 = 50;
+
+    function doClick() {
+        coins += clickPower;
+        updateUI();
+        showPlusText();
+        
+        // Легкая вибрация при клике
+        if(navigator.vibrate) navigator.vibrate(10);
+    }
+
+    function showPlusText() {
+        const txt = document.createElement('div');
+        txt.className = 'plus-one';
+        txt.innerText = '+' + clickPower;
+        txt.style.left = (window.innerWidth/2 + Math.random()*40 - 20) + 'px';
+        txt.style.top = (window.innerHeight/2) + 'px';
+        document.body.appendChild(txt);
+        setTimeout(() => txt.remove(), 500);
+    }
+
+    function buyUpgrade(id) {
+        if (id === 1 && coins >= cost1) {
+            coins -= cost1;
+            clickPower++;
+            cost1 = Math.round(cost1 * 1.5);
+        } else if (id === 2 && coins >= cost2) {
+            coins -= cost2;
+            autoPower++;
+            cost2 = Math.round(cost2 * 1.8);
+        }
+        updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('money').innerText = Math.floor(coins) + ' 💎';
+        document.getElementById('cost1').innerText = cost1;
+        document.getElementById('cost2').innerText = cost2;
+        
+        document.getElementById('btn1').disabled = coins < cost1;
+        document.getElementById('btn2').disabled = coins < cost2;
+    }
+
+    // Авто-доход каждую секунду
+    setInterval(() => {
+        if (autoPower > 0) {
+            coins += autoPower;
+            updateUI();
+        }
+    }, 1000);
+</script>
+
+</body>
+</html>
